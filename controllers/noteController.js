@@ -41,3 +41,16 @@ exports.deleteNote = (req, res) => {
         });
     });
 };
+
+// In noteController.js
+
+exports.deleteCalculationHistory = async (req, res) => {
+    const { id } = req.params;
+    // Logic to delete the entry from your database
+    try {
+        await YourDatabaseModel.deleteOne({ id }); // Adjust this based on your database setup
+        res.status(204).send(); // No content
+    } catch (error) {
+        res.status(500).json({ message: 'Error deleting entry', error });
+    }
+};
