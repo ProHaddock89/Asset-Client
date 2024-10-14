@@ -1,21 +1,19 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const notesRouter = require('./routes/notes');
+const calculationHistoryRouter = require('./routes/calculationHistory'); // Add this line
+
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8080;
 
-app.use(cors());
+// Middleware
+app.use(cors()); // Enable CORS
 app.use(bodyParser.json());
+app.use('/api/notes', notesRouter); // Use the notes routes
+app.use('/api/calculationHistory', calculationHistoryRouter); // Add this line
 
-let calculationHistory = []; // Temporary storage for calculation history
-
-app.post('/api/calculationHistory', (req, res) => {
-    const newEntry = req.body;
-    calculationHistory.push(newEntry); // Save the new entry
-    console.log("Received history entry:", newEntry);
-    res.status(201).send("History saved");
-});
-
+// Start the server
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`Server is running on the port: http://localhost:${PORT}`);
 });
