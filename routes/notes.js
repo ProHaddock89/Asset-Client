@@ -1,18 +1,21 @@
 const express = require('express');
 const router = express.Router();
-const noteController = require('../controllers/noteController');
 
-// GET notes
-router.get('/', noteController.getNotes);
+// Example: In-memory storage for notes (replace with a database in production)
+let notes = [];
 
-// POST new note
-router.post('/', noteController.createNote);
+// Route to get all notes
+router.get('/', (req, res) => {
+    res.json(notes);
+});
 
-// DELETE note
-router.delete('/:id', noteController.deleteNote);
+// Route to create a new note
+router.post('/', (req, res) => {
+    const newNote = req.body;
+    notes.push(newNote); // Save the note (consider adding validation)
+    res.status(201).json(newNote); // Respond with the created note
+});
 
-// History delete route:
-router.delete('/calculationHistory/:id', noteController.deleteCalculationHistory); // Assuming you have a controller for this
-
+// Additional routes for notes (e.g., update, delete) can go here
 
 module.exports = router;

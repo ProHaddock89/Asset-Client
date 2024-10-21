@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const notesFilePath = path.join(__dirname, '../data/notes.json');
+const calculationHistoryFilePath = path.join(__dirname, '../data/calculationHistory.json');
 
 // Get notes
 exports.getNotes = (req, res) => {
@@ -42,15 +43,19 @@ exports.deleteNote = (req, res) => {
     });
 };
 
-// In noteController.js
-
-exports.deleteCalculationHistory = async (req, res) => {
+// Delete a calculation history entry
+exports.deleteCalculationHistory = (req, res) => {
     const { id } = req.params;
-    // Logic to delete the entry from your database
-    try {
-        await YourDatabaseModel.deleteOne({ id }); // Adjust this based on your database setup
-        res.status(204).send(); // No content
-    } catch (error) {
-        res.status(500).json({ message: 'Error deleting entry', error });
-    }
+
+    fs.readFile(calculationHistoryFilePath, 'utf8', (err, data) => {
+        if (err) return res.status(500).json({ message: 'Failed to read calculation history' });
+        
+        let history = JSON.parse(data);
+        history = history.filter(entry => entry.id !== id);
+
+        fs.writeFile(calculationHistoryFilePath, JSON.stringify(history, null, 2), (err) => {
+            if (err) return res.status(500).json({ message: 'Failed to delete calculation history entry' });
+            res.status(204).send(); // No content
+        });
+    });
 };
