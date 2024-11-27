@@ -7,9 +7,22 @@ const calculationHistoryFilePath = path.join(__dirname, '../data/calculationHist
 exports.getNotes = (req, res) => {
     fs.readFile(notesFilePath, 'utf8', (err, data) => {
         if (err) return res.status(500).json({ message: 'Failed to read notes' });
-        res.json(JSON.parse(data));
+
+        let notes = JSON.parse(data);
+        
+        // Ensure each note has an id
+        notes = notes.map(note => {
+            if (!note.id) {
+                // Generate a new id for notes without an id
+                note.id = Date.now().toString();  // Or use another logic to generate a unique id
+            }
+            return note;
+        });
+
+        res.json(notes);
     });
 };
+
 
 // Create a new note
 exports.createNote = (req, res) => {
