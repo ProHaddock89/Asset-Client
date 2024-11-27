@@ -9,52 +9,59 @@ exports.getNotes = (req, res) => {
         if (err) return res.status(500).json({ message: 'Failed to read notes' });
 
         let notes = JSON.parse(data);
-        
-        // Ensure each note has an id
+        console.log("Fetched notes before id assignment:", notes);  // Log to inspect fetched notes
+
+        // Add missing ids if necessary
         notes = notes.map(note => {
             if (!note.id) {
-                // Generate a new id for notes without an id
-                note.id = Date.now().toString();  // Or use another logic to generate a unique id
+                note.id = Date.now().toString();  // Generate id if missing
             }
             return note;
         });
 
+        console.log("Fetched notes after id assignment:", notes);  // Log to confirm ids are added
         res.json(notes);
     });
 };
 
 
+
 // Create a new note
 exports.createNote = (req, res) => {
     const newNote = { id: Date.now().toString(), ...req.body };
-    
+    console.log('New Note to save:', newNote); // Log the note to confirm id is generated
+
     fs.readFile(notesFilePath, 'utf8', (err, data) => {
         if (err) return res.status(500).json({ message: 'Failed to read notes' });
         const notes = JSON.parse(data);
         notes.push(newNote);
-        
+
         fs.writeFile(notesFilePath, JSON.stringify(notes, null, 2), (err) => {
             if (err) return res.status(500).json({ message: 'Failed to save note' });
-            res.status(201).json(newNote);
+            res.status(201).json(newNote); // Respond with the newly created note
         });
     });
 };
 
+
 // Delete a note
 exports.deleteNote = (req, res) => {
     const { id } = req.params;
+    console.log('Attempting to delete note with id:', id);  // Log to confirm id is being passed
 
     fs.readFile(notesFilePath, 'utf8', (err, data) => {
         if (err) return res.status(500).json({ message: 'Failed to read notes' });
+
         let notes = JSON.parse(data);
         notes = notes.filter(note => note.id !== id);
 
         fs.writeFile(notesFilePath, JSON.stringify(notes, null, 2), (err) => {
             if (err) return res.status(500).json({ message: 'Failed to delete note' });
-            res.status(204).send();
+            res.status(204).send(); // No content
         });
     });
 };
+
 
 // Delete a calculation history entry
 exports.deleteCalculationHistory = (req, res) => {
