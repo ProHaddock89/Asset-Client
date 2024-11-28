@@ -45,22 +45,29 @@ exports.createNote = (req, res) => {
 
 
 // Delete a note
+// Delete a note
 exports.deleteNote = (req, res) => {
-    const { id } = req.params;
-    console.log('Attempting to delete note with id:', id);  // Log to confirm id is being passed
+    const { id } = req.params;  // Getting the ID from the request
 
     fs.readFile(notesFilePath, 'utf8', (err, data) => {
         if (err) return res.status(500).json({ message: 'Failed to read notes' });
 
         let notes = JSON.parse(data);
-        notes = notes.filter(note => note.id !== id);
+        console.log("Before deletion:", notes);  // Check the notes before deletion
 
+        // Remove the note that matches the ID
+        notes = notes.filter(note => note.id !== id);
+        
+        console.log("After deletion:", notes);  // Check the notes after deletion
+
+        // Write the updated notes back to the file
         fs.writeFile(notesFilePath, JSON.stringify(notes, null, 2), (err) => {
             if (err) return res.status(500).json({ message: 'Failed to delete note' });
-            res.status(204).send(); // No content
+            res.status(204).send();  // Send a 204 response to indicate successful deletion
         });
     });
 };
+
 
 
 // Delete a calculation history entry

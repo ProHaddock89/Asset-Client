@@ -23,5 +23,5 @@ app.use('/api/calculationHistory', calculationHistoryRouter);
 
 // Start the server
 app.listen(PORT, () => {
-    console.log(`Server is running on the port: http://localhost:${PORT}`);
+    console.log(`This Awesome Server is running on the port: http://localhost:${PORT}`);
 });
