@@ -7,11 +7,14 @@ const backendURL = 'https://calc-server-hgvf.onrender.com/api/calculationHistory
 // Route to get all calculation history from the backend
 router.get('/', async (req, res) => {
     try {
+        console.log('Attempting to fetch calculation history...');
         const response = await axios.get(backendURL);
+        console.log('Calculation history received:', response.data);
         res.json(response.data); // Respond with the data from the backend
     } catch (error) {
-        console.error('Error fetching calculation history:', error.response?.data || error.message);
-        res.status(500).json({ error: 'Failed to retrieve calculation history' });
+        const errorMessage = error.response?.data || error.message || 'Unknown error';
+        console.error('Error fetching calculation history:', errorMessage);
+        res.status(500).json({ error: `Failed to retrieve calculation history: ${errorMessage}` });
     }
 });
 
@@ -19,19 +22,23 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
     try {
         const newEntry = req.body;
-        console.log('Sending new entry to backend:', newEntry); // Debugging log
+        if (!newEntry || Object.keys(newEntry).length === 0) {
+            return res.status(400).json({ error: 'Invalid input. Body cannot be empty.' });
+        }
 
+        console.log('Sending new entry to backend:', newEntry);
         const response = await axios.post(backendURL, newEntry, {
             headers: {
                 'Content-Type': 'application/json',
             },
         });
 
-        console.log('Response from backend:', response.data); // Debugging log
+        console.log('Response from backend:', response.data);
         res.status(201).json(response.data); // Respond with the created entry
     } catch (error) {
-        console.error('Error saving calculation history:', error.response?.data || error.message);
-        res.status(500).json({ error: 'Failed to save calculation history' });
+        const errorMessage = error.response?.data || error.message || 'Unknown error';
+        console.error('Error saving calculation history:', errorMessage);
+        res.status(500).json({ error: `Failed to save calculation history: ${errorMessage}` });
     }
 });
 
