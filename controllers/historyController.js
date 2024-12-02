@@ -1,50 +1,28 @@
-const sqlite3 = require('sqlite3').verbose();
+const axios = require('axios');
 
-// Set up database connection
-const db = new sqlite3.Database('./calculationHistory.db', (err) => {
-    if (err) {
-        console.error('Error connecting to the database:', err.message);
-    } else {
-        console.log('Connected to the SQLite database.');
-        db.run(`
-            CREATE TABLE IF NOT EXISTS history (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                title TEXT,
-                PP REAL,
-                SL REAL,
-                NC REAL,
-                result REAL
-            )
-        `);
+const backendURL = 'https://calc-server-hgvf.onrender.com/api/calculationHistory';
+
+// Fetch all history entries from the backend
+const getHistory = async (req, res) => {
+    try {
+        const response = await axios.get(backendURL);
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error fetching calculation history:', error.message);
+        res.status(500).json({ error: 'Failed to retrieve calculation history' });
     }
-});
-
-// Fetch all history entries
-const getHistory = (req, res) => {
-    db.all(`SELECT * FROM history`, [], (err, rows) => {
-        if (err) {
-            console.error(err.message);
-            res.status(500).json({ error: 'Failed to retrieve history' });
-        } else {
-            res.json(rows);
-        }
-    });
 };
 
-// Add a new history entry
-const createHistoryEntry = (req, res) => {
-    const { title, PP, SL, NC, result } = req.body;
-    const sql = `INSERT INTO history (title, PP, SL, NC, result) VALUES (?, ?, ?, ?, ?)`;
-    const params = [title, PP, SL, NC, result];
-
-    db.run(sql, params, function (err) {
-        if (err) {
-            console.error(err.message);
-            res.status(500).json({ error: 'Failed to add history entry' });
-        } else {
-            res.status(201).json({ id: this.lastID, title, PP, SL, NC, result });
-        }
-    });
+// Add a new history entry to the backend
+const createHistoryEntry = async (req, res) => {
+    try {
+        const newEntry = req.body;
+        const response = await axios.post(backendURL, newEntry);
+        res.status(201).json(response.data);
+    } catch (error) {
+        console.error('Error saving calculation history:', error.message);
+        res.status(500).json({ error: 'Failed to save calculation history' });
+    }
 };
 
 module.exports = {
